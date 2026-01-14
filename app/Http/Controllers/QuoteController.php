@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Quote;
 use Illuminate\Http\Request;
 
@@ -30,7 +31,7 @@ class QuoteController extends Controller
 
         $total = 799.00;
         $deposit = 199.00;
-        $balance = $total - $deposit; // 600.00
+        $balance = $total - $deposit;
 
         $quote = Quote::create([
             'user_id' => auth()->id(),
@@ -51,9 +52,41 @@ class QuoteController extends Controller
 
     public function show(Quote $quote)
     {
-        // Sicurezza: il cliente può vedere solo i suoi preventivi
         abort_unless($quote->user_id === auth()->id(), 403);
 
         return view('quotes.show', compact('quote'));
+    }
+
+    /**
+     * STEP 10: accetta preventivo (draft) e crea ordine
+     */
+    public function accept(Quote $quote)
+    {
+        abort_unless($quote->user_id === auth()->id(), 403);
+
+        if ($quote->status !== 'draft') {
+            return back()->withErrors([
+                'quote' => 'Questo preventivo non è più in stato draft.',
+            ]);
+        }
+
+        // Crea ordine collegato al preventivo
+        $order = Order::create([
+            'user_id' => auth()->id(),
+            'quote_id' => $quote->id,
+            'status' => 'pending',
+            'total_amount' => $quote->total_amount,
+            'deposit_amount' => $quote->deposit_amount,
+            'balance_amount' => $quote->balance_amount,
+        ]);
+
+        // Aggiorna quote
+        $quote->update([
+            'status' => 'accepted',
+            'accepted_at' => now(),
+        ]);
+
+        return redirect()->route('orders.show', $order)
+            ->with('status', 'Preventivo accettato. Ordine creato.');
     }
 }

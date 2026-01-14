@@ -30,8 +30,20 @@ class Quote extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Relazione storica/flessibile (se un domani vuoi più ordini per lo stesso preventivo)
+     */
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Relazione principale per MVP: 1 quote -> 1 order
+     * (quello creato quando l'utente accetta il preventivo)
+     */
+    public function order()
+    {
+        return $this->hasOne(Order::class);
     }
 }
