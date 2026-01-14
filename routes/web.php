@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectFileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,18 +19,34 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated user routes (FE cliente)
+| Authenticated user routes (Frontend cliente)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
 
+    // Dashboard FE
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
+    // Profilo
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Preventivi
+    Route::get('/quotes', [QuoteController::class, 'index'])->name('quotes.index');
+    Route::get('/quotes/create', [QuoteController::class, 'create'])->name('quotes.create');
+    Route::post('/quotes', [QuoteController::class, 'store'])->name('quotes.store');
+    Route::get('/quotes/{quote}', [QuoteController::class, 'show'])->name('quotes.show');
+    // Ordini
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+
+    // Progetti
+    Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+
+    // Upload materiali
+    Route::get('/uploads', [ProjectFileController::class, 'index'])->name('uploads.index');
 });
 
 /*
@@ -39,12 +59,10 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
-        // Dashboard BO
         Route::get('/', function () {
             return view('admin.dashboard');
         })->name('dashboard');
 
-        // Gestione utenti
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::patch('/users/{user}/toggle-admin', [AdminUserController::class, 'toggleAdmin'])
             ->name('users.toggleAdmin');
