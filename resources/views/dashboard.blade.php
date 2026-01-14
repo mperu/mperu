@@ -20,44 +20,69 @@
                         Ciao <strong>{{ $user->name }}</strong>, sei loggato ✅
                     </div>
                     <div class="text-sm text-gray-600">
-                        Tipo account: <strong>{{ $isAdmin ? 'admin' : 'cliente' }}</strong>
+                        Tipo account:
+                        <strong>{{ $isAdmin ? 'admin' : 'cliente' }}</strong>
                     </div>
                 </div>
             </div>
 
-            {{-- Se admin: mostra SOLO area admin --}}
+            {{-- ADMIN DASHBOARD (solo admin) --}}
             @if($isAdmin)
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-red-200">
-                    <div class="p-6">
-                        <h3 class="font-semibold mb-3 text-red-600">Area Admin</h3>
+                    <div class="p-6 space-y-3">
+                        <h3 class="font-semibold text-red-600">Area Admin</h3>
 
-                        <ul class="list-disc pl-5 space-y-1">
+                        <ul class="list-disc pl-5 space-y-1 text-sm">
                             <li>
-                                <a class="underline" href="{{ route('admin.dashboard') }}">
-                                    Apri Back Office
+                                <a href="{{ route('admin.dashboard') }}" class="underline">
+                                    Back Office
                                 </a>
                             </li>
                             <li>
-                                <a class="underline" href="{{ route('admin.users.index') }}">
+                                <a href="{{ route('admin.users.index') }}" class="underline">
                                     Gestione utenti
                                 </a>
                             </li>
                         </ul>
+
+                        <p class="text-xs text-gray-500">
+                            Le funzionalità BO sono accessibili solo da questa area.
+                        </p>
                     </div>
                 </div>
 
-            {{-- Se cliente: mostra SOLO pannello cliente --}}
+            {{-- CLIENT DASHBOARD (solo clienti) --}}
             @else
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h3 class="font-semibold mb-3">Pannello Cliente FE</h3>
+                    <div class="p-6 space-y-4">
+                        <h3 class="font-semibold">Pannello Cliente</h3>
 
-                        <ul class="list-disc pl-5 space-y-1">
-                            <li><a href="#" class="underline">I miei progetti</a></li>
-                            <li><a href="#" class="underline">Preventivi</a></li>
-                            <li><a href="#" class="underline">Ordini</a></li>
-                            <li><a href="#" class="underline">Upload materiali</a></li>
+                        <ul class="list-disc pl-5 space-y-1 text-sm">
+                            <li>
+                                <a href="{{ route('projects.index') }}" class="underline">
+                                    I miei progetti
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('quotes.index') }}" class="underline">
+                                    Preventivi
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('orders.index') }}" class="underline">
+                                    Ordini
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('uploads.index') }}" class="underline">
+                                    Upload materiali
+                                </a>
+                            </li>
                         </ul>
+
+                        <p class="text-xs text-gray-500">
+                            Da qui puoi gestire preventivi, ordini e materiali dei tuoi progetti.
+                        </p>
                     </div>
                 </div>
             @endif
