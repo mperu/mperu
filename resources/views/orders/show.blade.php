@@ -25,13 +25,16 @@
                 </div>
             @endif
 
-            <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-3">
-                <div class="text-sm"><strong>Status:</strong> {{ $order->status }}</div>
-                <div class="text-sm"><strong>Totale:</strong> € {{ number_format((float)$order->total_amount, 2, ',', '.') }}</div>
-                <div class="text-sm"><strong>Acconto:</strong> € {{ number_format((float)$order->deposit_amount, 2, ',', '.') }}</div>
-                <div class="text-sm"><strong>Saldo:</strong> € {{ number_format((float)$order->balance_amount, 2, ',', '.') }}</div>
+            <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-4">
 
-                <div class="text-sm text-gray-600">
+                <div class="space-y-1 text-sm">
+                    <div><strong>Status:</strong> {{ $order->status }}</div>
+                    <div><strong>Totale:</strong> € {{ number_format((float)$order->total_amount, 2, ',', '.') }}</div>
+                    <div><strong>Acconto:</strong> € {{ number_format((float)$order->deposit_amount, 2, ',', '.') }}</div>
+                    <div><strong>Saldo:</strong> € {{ number_format((float)$order->balance_amount, 2, ',', '.') }}</div>
+                </div>
+
+                <div class="text-sm text-gray-600 space-y-1">
                     <div><strong>Acconto pagato il:</strong> {{ $order->deposit_paid_at ? $order->deposit_paid_at->format('d/m/Y H:i') : '—' }}</div>
                     <div><strong>Saldo pagato il:</strong> {{ $order->balance_paid_at ? $order->balance_paid_at->format('d/m/Y H:i') : '—' }}</div>
                 </div>
@@ -52,15 +55,18 @@
                 @if(optional($order->project)->id)
                     <div class="text-sm text-gray-600">
                         Progetto creato:
+                        <span class="font-semibold">#{{ $order->project->id }}</span>
+                        <span class="text-gray-500">({{ $order->project->status }})</span>
+                        —
                         <a class="underline text-gray-800 hover:text-gray-600" href="{{ route('projects.index') }}">
-                            Progetto #{{ $order->project->id }} ({{ $order->project->status }})
+                            vai ai progetti
                         </a>
                     </div>
                 @endif
 
                 <hr>
 
-                {{-- Azioni MVP (simulazione pagamenti) --}}
+                {{-- Azioni MVP: simulazione pagamenti --}}
                 <div class="flex items-center gap-3">
 
                     @if($order->status === 'pending')
@@ -90,6 +96,7 @@
                     @endif
 
                 </div>
+
             </div>
 
         </div>

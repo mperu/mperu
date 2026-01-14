@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Project;
-use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
@@ -21,20 +20,18 @@ class OrderController extends Controller
     {
         abort_unless($order->user_id === auth()->id(), 403);
 
-        // carico project se esiste
         $order->loadMissing('project');
 
         return view('orders.show', compact('order'));
     }
 
     /**
-     * STEP 11: segna acconto pagato
+     * STEP 11: Segna acconto pagato
      */
     public function markDepositPaid(Order $order)
     {
         abort_unless($order->user_id === auth()->id(), 403);
 
-        // valido solo se pending
         if ($order->status !== 'pending') {
             return back()->withErrors([
                 'order' => 'Puoi segnare l’acconto solo se l’ordine è in stato pending.',
@@ -50,13 +47,12 @@ class OrderController extends Controller
     }
 
     /**
-     * STEP 11: segna saldo pagato e crea progetto
+     * STEP 11: Segna saldo pagato e crea Project
      */
     public function markBalancePaid(Order $order)
     {
         abort_unless($order->user_id === auth()->id(), 403);
 
-        // valido solo se deposit_paid
         if ($order->status !== 'deposit_paid') {
             return back()->withErrors([
                 'order' => 'Puoi segnare il saldo solo dopo l’acconto (status deposit_paid).',
@@ -68,7 +64,7 @@ class OrderController extends Controller
             'balance_paid_at' => now(),
         ]);
 
-        // crea progetto se non esiste
+        // 1 ordine -> 1 progetto (crea se non esiste)
         Project::firstOrCreate(
             ['order_id' => $order->id],
             [
