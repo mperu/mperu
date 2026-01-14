@@ -39,19 +39,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/quotes/create', [QuoteController::class, 'create'])->name('quotes.create');
     Route::post('/quotes', [QuoteController::class, 'store'])->name('quotes.store');
     Route::get('/quotes/{quote}', [QuoteController::class, 'show'])->name('quotes.show');
-
-    // STEP 10: accetta preventivo => crea ordine
     Route::post('/quotes/{quote}/accept', [QuoteController::class, 'accept'])->name('quotes.accept');
 
     // Ordini (Orders)
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-
-    // STEP 10: dettaglio ordine
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+    // STEP 11: simulazione pagamenti
     Route::patch('/orders/{order}/deposit-paid', [OrderController::class, 'markDepositPaid'])
-    ->name('orders.depositPaid');
+        ->name('orders.depositPaid');
     Route::patch('/orders/{order}/balance-paid', [OrderController::class, 'markBalancePaid'])
-    ->name('orders.balancePaid');
+        ->name('orders.balancePaid');
+
     // Progetti
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
 
