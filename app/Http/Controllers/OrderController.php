@@ -18,54 +18,35 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        abort_unless($order->user_id === auth()->id(), 403);
+        $this->authorize('view', $order);
 
-        $order->loadMissing('project');
+        $order->loadMissing(['project', 'quote']);
 
         return view('orders.show', compact('order'));
     }
 
-    /**
-     * STEP 11: Segna acconto pagato
-     */
     public function markDepositPaid(Order $order)
     {
-        abort_unless($order->user_id === auth()->id(), 403);
-
-        if ($order->status !== 'pending') {
-            return back()->withErrors([
-                'order' => 'Puoi segnare l’acconto solo se l’ordine è in stato pending.',
-            ]);
-        }
+        $this->authorize('markDepositPaid', $order);
 
         $order->update([
             'status' => 'deposit_paid',
             'deposit_paid_at' => now(),
         ]);
 
-        return back()->with('status', 'Acconto segnato come pagato');
+        return back()->with('status', 'Acconto segnato come pagato ✅');
     }
 
-    /**
-     * STEP 11: Segna saldo pagato e crea Project
-     */
     public function markBalancePaid(Order $order)
     {
-        abort_unless($order->user_id === auth()->id(), 403);
-
-        if ($order->status !== 'deposit_paid') {
-            return back()->withErrors([
-                'order' => 'Puoi segnare il saldo solo dopo l’acconto (status deposit_paid).',
-            ]);
-        }
+        $this->authorize('markBalancePaid', $order);
 
         $order->update([
             'status' => 'paid',
             'balance_paid_at' => now(),
         ]);
 
-        // 1 ordine -> 1 progetto (crea se non esiste)
-        Project::firstOrCreate(
+        $project = Project::firstOrCreate(
             ['order_id' => $order->id],
             [
                 'user_id' => $order->user_id,
@@ -75,6 +56,22 @@ class OrderController extends Controller
             ]
         );
 
-        return back()->with('status', 'Saldo segnato come pagato Progetto creato.');
+        if ($project->wasRecentlyCreated) {
+            $project->updates()->create([
+                'type' => 'project_created',
+                'meta' => [
+                    'by' => 'system',
+                    'order_id' => $order->id,
+                ],
+            ]);
+        }
+
+        if ($project->user_id !== $order->user_id) {
+            $project->update(['user_id' => $order->user_id]);
+        }
+
+        return redirect()
+            ->route('projects.show', $project)
+            ->with('status', 'Saldo segnato come pagato ✅ Progetto pronto: carica i materiali.');
     }
 }

@@ -12,6 +12,7 @@ class Project extends Model
         'status',
         'subdomain',
         'snapshot_path',
+        'admin_notes',
     ];
 
     public function user()
@@ -27,5 +28,21 @@ class Project extends Model
     public function files()
     {
         return $this->hasMany(ProjectFile::class);
+    }
+
+    /**
+     * Timeline progetto (tabella: project_updates)
+     */
+    public function updates()
+    {
+        return $this->hasMany(ProjectUpdate::class)->latest();
+    }
+
+    /**
+     * Commenti (tabella: project_comments)
+     */
+    public function comments()
+    {
+        return $this->hasMany(ProjectComment::class)->latest();
     }
 }

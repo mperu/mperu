@@ -6,6 +6,19 @@
         </div>
     </x-slot>
 
+    @php
+        $status = $order->status;
+
+        $badgeClass = match ($status) {
+            'pending' => 'bg-yellow-100 text-yellow-800',
+            'deposit_paid' => 'bg-indigo-100 text-indigo-800',
+            'paid' => 'bg-green-100 text-green-800',
+            'cancelled' => 'bg-gray-200 text-gray-800',
+            'refunded' => 'bg-red-100 text-red-800',
+            default => 'bg-gray-100 text-gray-800',
+        };
+    @endphp
+
     <div class="py-8">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-4">
 
@@ -27,8 +40,23 @@
 
             <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-4">
 
+                <div class="flex items-center justify-between">
+                    <div class="text-sm">
+                        <strong>Status:</strong>
+                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-semibold {{ $badgeClass }}">
+                            {{ $status }}
+                        </span>
+                    </div>
+
+                    {{-- Shortcut al progetto se esiste --}}
+                    @if(optional($order->project)->id)
+                        <a class="underline text-gray-800 hover:text-gray-600" href="{{ route('projects.show', $order->project) }}">
+                            Apri progetto #{{ $order->project->id }}
+                        </a>
+                    @endif
+                </div>
+
                 <div class="space-y-1 text-sm">
-                    <div><strong>Status:</strong> {{ $order->status }}</div>
                     <div><strong>Totale:</strong> € {{ number_format((float)$order->total_amount, 2, ',', '.') }}</div>
                     <div><strong>Acconto:</strong> € {{ number_format((float)$order->deposit_amount, 2, ',', '.') }}</div>
                     <div><strong>Saldo:</strong> € {{ number_format((float)$order->balance_amount, 2, ',', '.') }}</div>
@@ -52,14 +80,22 @@
                     @endif
                 </div>
 
+                {{-- Blocco progetto --}}
                 @if(optional($order->project)->id)
                     <div class="text-sm text-gray-600">
                         Progetto creato:
                         <span class="font-semibold">#{{ $order->project->id }}</span>
                         <span class="text-gray-500">({{ $order->project->status }})</span>
                         —
+                        <a class="underline text-gray-800 hover:text-gray-600" href="{{ route('projects.show', $order->project) }}">
+                            Apri progetto
+                        </a>
+                    </div>
+                @elseif($order->status === 'paid')
+                    <div class="text-sm text-gray-600">
+                        Ordine completato: il progetto dovrebbe essere disponibile.
                         <a class="underline text-gray-800 hover:text-gray-600" href="{{ route('projects.index') }}">
-                            vai ai progetti
+                            Vai ai progetti
                         </a>
                     </div>
                 @endif
@@ -91,7 +127,7 @@
 
                     @if($order->status === 'paid')
                         <span class="text-sm text-green-700 font-semibold">
-                            Ordine completato
+                            Ordine completato ✅
                         </span>
                     @endif
 
